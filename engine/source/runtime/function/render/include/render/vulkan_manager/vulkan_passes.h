@@ -27,6 +27,20 @@ namespace Pilot
         void setupDescriptorSet();
     };
 
+    class PFogPass : public PRenderPassBase
+    {
+    public:
+        void initialize(VkRenderPass render_pass, VkImageView input_attachment);
+        void draw();
+
+        void updateAfterFramebufferRecreate(VkImageView input_attachment);
+
+    private:
+        void setupDescriptorSetLayout();
+        void setupPipelines();
+        void setupDescriptorSet();
+    };
+
     class PToneMappingPass : public PRenderPassBase
     {
     public:
@@ -91,6 +105,7 @@ namespace Pilot
         _main_camera_subpass_deferred_lighting,
         _main_camera_subpass_forward_lighting,
         _main_camera_subpass_tone_mapping,
+        _main_camera_subpass_fog,
         _main_camera_subpass_color_grading,
         _main_camera_subpass_ui,
         _main_camera_subpass_combine_ui,
@@ -137,6 +152,7 @@ namespace Pilot
         void initialize();
 
         void draw(PColorGradingPass& color_grading_pass,
+                  PFogPass&          fog_pass,
                   PToneMappingPass&  tone_mapping_pass,
                   PUIPass&           ui_pass,
                   PCombineUIPass&    combine_ui_pass,
