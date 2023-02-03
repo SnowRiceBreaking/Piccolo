@@ -14,6 +14,7 @@
 #include "runtime/function/input/input_system.h"
 #include "runtime/function/physics/physics_scene.h"
 
+#include <iostream>
 namespace Pilot
 {
     void MotorComponent::postLoadResource(std::weak_ptr<GObject> parent_object)
@@ -85,9 +86,19 @@ namespace Pilot
 
         AnimationComponent* animation_component =
             m_parent_object.lock()->tryGetComponent<AnimationComponent>("AnimationComponent");
+
+        bool has_move_command = ((unsigned int)GameCommand::forward | (unsigned int)GameCommand::backward |
+                                 (unsigned int)GameCommand::left | (unsigned int)GameCommand::right) &
+                                command;
         if (animation_component != nullptr)
         {
             animation_component->updateSignal("speed", m_target_position.distance(transform_component->getPosition()) / delta_time);
+         //   if (has_move_command && m_target_position.distance(transform_component->getPosition())==0)
+         //   {
+        //        animation_component->updateSignal("speed", m_move_speed_ratio * 2.0);
+         //   }
+        //    std::cout << m_target_position.distance(transform_component->getPosition()) / delta_time << " "
+        //              << m_move_speed_ratio << std::endl;
             animation_component->updateSignal("jumping", m_jump_state != JumpState::idle);
         }
     }
@@ -124,6 +135,7 @@ namespace Pilot
 
         m_move_speed_ratio += (is_acceleration ? 1.0f : -1.0f) * final_acceleration * delta_time;
         m_move_speed_ratio = std::clamp(m_move_speed_ratio, min_speed_ratio, max_speed_ratio);
+//        std::cout << m_move_speed_ratio << std::endl;
     }
 
     void MotorComponent::calculatedDesiredVerticalMoveSpeed(unsigned int command, float delta_time)
@@ -158,6 +170,7 @@ namespace Pilot
         else if (m_jump_state == JumpState::rising || m_jump_state == JumpState::falling)
         {
             m_vertical_move_speed -= gravity * delta_time;
+        //    std::cout << m_vertical_move_speed << std::endl;
             if (m_vertical_move_speed <= 0.f)
             {
                 m_jump_state = JumpState::falling;
